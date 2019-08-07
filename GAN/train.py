@@ -1,65 +1,53 @@
 import torch
-import torch.optim as optim
-from torch.utils.data import DataLoader
-from torchvision import transforms
-from torchvision.datasets import MNIST
-from torchvision.utils import save_image
-import numpy as np
 
-from model import *
-from visualize import *
+from model import Net, Net
+from utils import get_device
+from visualize import plot, hist
 
-latent_size = 64
-lr = 1e-4
-num_epochs = 100
-m = 128
-save_iter = 10
 
-# get images from MNIST database
-dataset = MNIST('data', transform=transforms.ToTensor(), download=True)
-dataloader = DataLoader(dataset, batch_size=m, shuffle=True)
+epochs = 2e4
+vis_iter = 100
 
-# create GAN and optimizers for it
-G = Generator(latent_size)
-D = Discriminator()
-g_optimizer = optim.Adam(G.parameters(), lr=lr)
-d_optimizer = optim.Adam(D.parameters(), lr=lr)
+latent_size = 10
+data_size = 40
+m = 100
 
-# start training
-for epoch in range(num_epochs):
+G = Net(type='G', latent_size=latent_size, data_size=data_size)
+D = Net(type='D', latent_size=latent_size, data_size=data_size)
 
-    # get minibatches of size m from dataset
-    for img, labels in dataloader:
 
-        # resize each image to 1D
-        img = img.view(img.size(0), -1)
+def noise(batch_size=m):
+    return torch.randn(batch_size, latent_size)
 
-        # generate m examples of noise to train the discriminator
-        z = torch.FloatTensor(np.random.normal(0, 1, (img.size(0), latent_size)))
 
-        # gradient ascent for discriminator
-        # loss = avg of [log(D(x))  + log(1 - D(G(z)))]
-        # where D(x) is P(x came from real data)
-        d_loss = -(torch.log(D(img)) + torch.log(1 - D(G(z)))).mean()
-        d_optimizer.zero_grad()
-        d_loss.backward()
-        d_optimizer.step()
+def sample_data(batch_size=m):
+    shape = (batch_size // 2, data_size)
+    a = torch.randn(shape) * 4 - 10
+    b = torch.randn(shape) + 5
+    c = torch.cat((a, b))
+    return c
 
-        # generate another m examples of noise to train the generator
-        z = torch.FloatTensor(np.random.normal(0, 1, (img.size(0), latent_size)))
 
-        # gradient descent for generator
-        # loss = avg of [log(1 - D(G(z)))]
-        g_loss = torch.log(1 - D(G(z))).mean()
-        g_optimizer.zero_grad()
-        g_loss.backward()
-        g_optimizer.step()
+for epoch in range(int(epochs)):
 
-    # plot loss
-    update_viz(epoch, d_loss.item(), g_loss.item())
+    # optimize discriminator
+    z, x = noise(), sample_data()
+    d_loss = -( torch.log(D(x)) + torch.log(1 - D(G(z))) ).mean()
+    D.optimize(d_loss)
 
-    # save images periodically
-    if epoch % save_iter == save_iter - 1:
-        z = torch.FloatTensor(np.random.normal(0, 1, (96, latent_size)))
-        img = G(z).view(96, 1, 28, 28)
-        save_image(img, './img/' + str(epoch + 1) + '_epochs.png')
+    # optimize generator
+    z = noise()
+    g_loss = torch.log(1 - D(G(z))).mean()
+    G.optimize(g_loss)
+
+    # visualize progress occasionally
+    if epoch % vis_iter == vis_iter - 1:
+
+        # plot loss
+        plot(epoch, -d_loss, g_loss)
+
+        # draw histograms of real and generated data
+        with torch.no_grad():
+            z, x = noise(100), sample_data(100)
+            hist(x, 'Real')
+            hist(G(z), 'Generated')

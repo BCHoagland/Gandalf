@@ -3,19 +3,17 @@ from visdom import Visdom
 
 viz = Visdom()
 
-title = 'GAN Loss by Epoch - MNIST'
 win = None
-
-def update_viz(epoch, d_loss, g_loss):
+def plot(epoch, d_loss, g_loss):
     global win, title
 
     if win is None:
-        title = title
+        title = 'Loss'
 
         win = viz.line(
             X=np.array([epoch]),
-            Y=np.array([[d_loss, g_loss]]),
-            win=title,
+            Y=np.array([[d_loss.item(), g_loss.item()]]),
+            win='GAN Loss',
             opts=dict(
                 title=title,
                 legend=['Discriminator', 'Generator']
@@ -24,7 +22,20 @@ def update_viz(epoch, d_loss, g_loss):
     else:
         viz.line(
             X=np.array([epoch]),
-            Y=np.array([[d_loss, g_loss]]),
+            Y=np.array([[d_loss.item(), g_loss.item()]]),
             win=win,
             update='append'
         )
+
+
+def hist(points, name):
+    points = points.flatten().cpu()
+
+    title = name
+    viz.histogram(
+        X=np.array(points),
+        win=title,
+        opts=dict(
+            title=title
+        )
+    )
