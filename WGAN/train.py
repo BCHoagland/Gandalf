@@ -1,18 +1,22 @@
 import torch
 
 from model import Net
+from utils import get_device
 from visualize import plot, hist
 
 
-epochs = 2e4
-vis_iter = 100
+epochs = 1e5
+vis_iter = 500
 
 latent_size = 10
 data_size = 1
-m = 100
+m = 64
+n = 5
+lr = 5e-5
+c = 0.01
 
-G = Net(type='G', latent_size=latent_size, data_size=data_size)
-D = Net(type='D', latent_size=latent_size, data_size=data_size)
+g = Net(type='G', latent_size=latent_size, data_size=data_size, lr=lr)
+f = Net(type='D', latent_size=latent_size, data_size=data_size, lr=lr)
 
 
 def noise(batch_size=m):
@@ -22,27 +26,32 @@ def noise(batch_size=m):
 def sample_data(batch_size=m):
     return torch.randn(batch_size, data_size) * 5 + 100
 
+
 for epoch in range(int(epochs)):
 
     # optimize discriminator
-    z, x = noise(), sample_data()
-    d_loss = -( torch.log(D(x)) + torch.log(1 - D(G(z))) ).mean()
-    D.optimize(d_loss)
+    for _ in range(n):
+        z, x = noise(), sample_data()
+        f_loss = -( f(x) - f(g(z)) ).mean()
+        f.optimize(f_loss)
+
+        # clip discriminator weights
+        for p in f.parameters():
+            p.data.clamp_(-c, c)
 
     # optimize generator
     z = noise()
-    g_loss = torch.log(1 - D(G(z))).mean()
-    g_loss = -torch.log(D(G(z))).mean()
-    G.optimize(g_loss)
+    g_loss = -f(g(z)).mean()
+    g.optimize(g_loss)
 
     # visualize progress occasionally
     if epoch % vis_iter == vis_iter - 1:
 
         # plot loss
-        plot(epoch, -d_loss, -g_loss)
+        plot(epoch, -f_loss)
 
         # draw histograms of real and generated data
         with torch.no_grad():
             z, x = noise(100), sample_data(100)
             hist(x, 'Real')
-            hist(G(z), 'Generated')
+            hist(g(z), 'Generated')
