@@ -37,14 +37,14 @@ for epoch in range(int(epochs)):
 
     # optimize generator
     z = noise()
-    g_loss = torch.log(1 - D(G(z))).mean()
+    g_loss = -torch.log(D(G(z))).mean()
     G.optimize(g_loss)
 
     # visualize progress occasionally
     if epoch % vis_iter == vis_iter - 1:
 
         # plot loss
-        plot(epoch, -d_loss, g_loss)
+        plot(epoch, -d_loss, -g_loss)
 
         # draw histograms of real and generated data
         with torch.no_grad():
