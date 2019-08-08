@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from utils import get_device
+device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
 
 class Net(nn.Module):
@@ -28,12 +28,12 @@ class Net(nn.Module):
         else:
             raise NotImplementedError
 
-        self.to(get_device())
+        self.to(device)
         self.optimizer = torch.optim.Adam(self.parameters(), lr=lr)
 
     def forward(self, x):
         if not isinstance(x, torch.Tensor): x = torch.FloatTensor(x)
-        return self.main(x.to(get_device()))
+        return self.main(x.to(device))
 
     def optimize(self, loss):
         self.optimizer.zero_grad()

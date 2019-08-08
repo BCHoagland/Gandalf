@@ -3,34 +3,40 @@ import torch.nn as nn
 
 device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
-class Generator(nn.Module):
-    def __init__(self, latent_size):
-        super(Generator, self).__init__()
 
-        self.main = nn.Sequential(
-            nn.Linear(latent_size, 128),
-            nn.ELU(),
-            nn.Linear(128, 256),
-            nn.ELU(),
-            nn.Linear(256, 28 * 28),
-            nn.Sigmoid()
-        )
+class Net(nn.Module):
+    def __init__(self, type, latent_size, data_size, n_hidden=256, lr=1e-4):
+        super().__init__()
+
+        if type is 'G':
+            self.main = nn.Sequential(
+                nn.Linear(latent_size, n_hidden),
+                nn.ELU(),
+                nn.Linear(n_hidden, n_hidden),
+                nn.ELU(),
+                nn.Linear(n_hidden, data_size),
+                nn.Sigmoid()
+            )
+        elif type is 'D':
+            self.main = nn.Sequential(
+                nn.Linear(data_size, n_hidden),
+                nn.ELU(),
+                nn.Linear(n_hidden, n_hidden),
+                nn.ELU(),
+                nn.Linear(n_hidden, 1),
+                nn.Sigmoid()
+            )
+        else:
+            raise NotImplementedError
+
+        self.to(device)
+        self.optimizer = torch.optim.Adam(self.parameters(), lr=lr)
 
     def forward(self, x):
+        if not isinstance(x, torch.Tensor): x = torch.FloatTensor(x)
         return self.main(x.to(device))
 
-class Discriminator(nn.Module):
-    def __init__(self):
-        super(Discriminator, self).__init__()
-
-        self.main = nn.Sequential(
-            nn.Linear(28 * 28, 64),
-            nn.ELU(),
-            nn.Linear(64, 32),
-            nn.ELU(),
-            nn.Linear(32, 1),
-            nn.Sigmoid()
-        )
-
-    def forward(self, x):
-        return self.main(x.to(device))
+    def optimize(self, loss):
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
