@@ -5,10 +5,10 @@ from torchvision.utils import save_image
 from pathlib import Path
 
 class MNIST:
+    data_size = 28 * 28
+
     def __init__(self, config):
         self.config = config
-
-        self.data_size = 28 * 28                                                                                        # TODO: FIX
 
         dataset = datasets.MNIST('gandalf/data', transform=transforms.ToTensor(), download=True)
         self.dataloader = DataLoader(dataset, batch_size=config.m, shuffle=True)

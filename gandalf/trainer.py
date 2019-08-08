@@ -9,6 +9,7 @@ class Trainer:
         self.data = data(config)
         self.algo = algo(config)
         self.config = config
+        self.config.data_size = data.data_size
 
 
     def __getattr__(self, k):
