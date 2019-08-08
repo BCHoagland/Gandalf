@@ -32,16 +32,22 @@ for epoch in range(num_epochs):
         # gradient ascent for discriminator
         x = img.view(img.size(0), -1)                                           # reshape image to be 1D
         z = torch.randn(img.size(0), latent_size)                               # samples of noise
-        d_loss = (torch.log(D(x)) + torch.log(1 - D(G(z)))).mean()              # L = E[ log D(x) - log(1 - D(G(z))) ]
+        # d_loss = (torch.log(D(x)) + torch.log(1 - D(G(z)))).mean()              # L = E[ log D(x) - log(1 - D(G(z))) ]
+        d_loss = ( D(x) - D(G(z)) ).mean()
         D.optimize(-d_loss)                                                     # gradient ASCENT on L
+        for p in D.parameters():
+            p.data.clamp_(-0.01, 0.01)
 
         # gradient ascent for generator
         z = torch.randn(img.size(0), latent_size)                               # new samples of noise
-        g_loss = torch.log(1 - D(G(z))).mean()                                  # L = E[ log(1 - D(G(z))) ]
-        G.optimize(g_loss)                                                      # gradient DESCENT on L
+        # g_loss = torch.log(1 - D(G(z))).mean()                                  # L = E[ log(1 - D(G(z))) ]
+        g_loss = D(G(z)).mean()
+        # G.optimize(g_loss)                                                      # gradient DESCENT on L
+        G.optimize(-g_loss)
 
     # plot loss
-    update_viz(epoch, d_loss.item(), g_loss.item())
+    # update_viz(epoch, d_loss.item(), g_loss.item())
+    update_viz(epoch, d_loss.item(), 0)
 
     # save images periodically
     if epoch % save_iter == save_iter - 1:

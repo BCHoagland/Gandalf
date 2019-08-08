@@ -15,7 +15,7 @@ class Net(nn.Module):
                 nn.Linear(n_hidden, n_hidden),
                 nn.ELU(),
                 nn.Linear(n_hidden, data_size),
-                nn.Sigmoid()
+                # nn.Sigmoid()
             )
         elif type is 'D':
             self.main = nn.Sequential(
@@ -24,7 +24,7 @@ class Net(nn.Module):
                 nn.Linear(n_hidden, n_hidden),
                 nn.ELU(),
                 nn.Linear(n_hidden, 1),
-                nn.Sigmoid()
+                # nn.Sigmoid()
             )
         else:
             raise NotImplementedError
