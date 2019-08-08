@@ -25,15 +25,14 @@ class GAN(Algo):
         
         return G, D
 
-    def optimize_D(self):
+    def optimize_D(self, x):
         z = self.noise()
-        x = self.sample_data()
         self.d_loss = (torch.log(self.D(x)) + torch.log(1 - self.D(self.G(z)))).mean()
         self.D.optimize(-self.d_loss)
 
     def optimize_G(self):
         z = self.noise()
-        # self.g_loss = torch.log(self.D(self.G(z))).mean()                                           # w/ trick
+        # self.g_loss = torch.log(self.D(self.G(z))).mean()                                           # w/ trick            # TODO: decide whether or not to keep
         # self.G.optimize(-self.g_loss)
         self.g_loss = torch.log(1 - self.D(self.G(z))).mean()                                       # w/out trick
         self.G.optimize(self.g_loss)
@@ -42,7 +41,7 @@ class GAN(Algo):
         plot(epoch, self.g_loss, 'Loss', 'G', refresh=False)
         plot(epoch, self.d_loss, 'Loss', 'D')
 
-        z = self.noise(100)
-        x = self.sample_data(100)
-        hist(x, 'Real')
-        hist(self.G(z), 'Generated')
+        # z = self.noise(100)
+        # x = self.sample_data(100)
+        # hist(x, 'Real')
+        # hist(self.G(z), 'Generated')                                                      # TODO: decide whether or not to keep

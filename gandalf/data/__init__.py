@@ -1,0 +1,1 @@
+from gandalf.data.mnist import MNIST
