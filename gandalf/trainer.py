@@ -12,14 +12,19 @@ def get_class(module, class_name):
 
 
 class Trainer:
-    def __init__(self, config):
+    def __init__(self, config, data=None):
         self.config = config
-        self.config.data = self.config.data.upper()
+
+        # set algorithm
         self.config.algo = self.config.algo.upper()
+        self.algo = get_class('gandalf.algos', self.config.algo)(config)
 
-        self.algo = get_class('gandalf.algos', config.algo)(config)
-
-        self.data = get_class('gandalf.data', config.data)(config)
+        # set data
+        if data is None:
+            self.config.data = self.config.data.upper()
+            self.data = get_class('gandalf.data', self.config.data)(config)
+        else:
+            self.data = data
         self.config.data_size = self.data.data_size
 
 
