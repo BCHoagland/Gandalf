@@ -1,13 +1,8 @@
 import torch
 
 class Algo:
-    # def __init__(self, latent_size, data_size, m, n_hidden):
     def __init__(self, config):
         self.config = config
-        # self.latent_size = latent_size
-        # self.data_size = data_size
-        # self.m = m
-        # self.n_hidden = n_hidden
 
     def __getattr__(self, k):
         return getattr(self.config, k)

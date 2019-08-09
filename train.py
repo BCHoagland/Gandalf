@@ -1,14 +1,19 @@
 import gandalf
 
 class Config:
-    latent_size = 10
-    data_size = 1
+    latent_size = 100
     m = 64
     n_hidden = 128
     clip = 0.01
 
-# algo = gandalf.algos.GAN(Config)
-algo = gandalf.algos.WGAN(Config)
-trainer = gandalf.Trainer(algo)
+    epochs = 100
+    k = 5
+    vis_iter = 1
+    save_iter = 10
+    lr = 5e-5
 
+    data = 'MNIST'
+    algo = 'WGAN'
+
+trainer = gandalf.Trainer(Config)
 trainer.train()

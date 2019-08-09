@@ -1,57 +1,60 @@
 import numpy as np
 from visdom import Visdom
+from math import sqrt
 
 from gandalf.visualize.utils import get_line
 
 d = {}
 viz = Visdom()
 
-def plot(x, y, data_type, name, color='#000', refresh=True):
-    # create dictionary spots if they don't already exist
+colors = ['#264653', '#2A9D8F', '#E9C46A', '#F4A261', '#E76F51']
+
+
+def format_y(y):
+    if not isinstance(y, float):
+        # if given a single number, save its float
+        if len(y.shape) == 0:
+            return float(y)
+        # if given a set of numbers, save their mean
+        else:
+            return y.cpu().mean().item()
+
+
+def plot(x, y_all, data_type, names):
+
+    # ensure data type spot in dictionary exists
     if data_type not in d:
         d[data_type] = {}
-    if name not in d[data_type]:
-        d[data_type][name] = {'points': [], 'color': color}
-    
-    # if given a single number, save its float
-    if not isinstance(y, float):
-        if len(y.shape) == 0:
-            y = float(y)
-        # if given a set of numbers, save their mean and confidence interval info
-        else:
-            y = y.cpu()
-            mean, std = y.mean().item(), 3.291 * y.std().item() / sqrt(len(y))
-            lower, upper = mean - std, mean + std
-            y = (lower, mean, upper)
 
-    # save the modified data
-    d[data_type][name]['points'].append((x, y))
+    # loop through given data
+    for n_plot in range(y_all.shape[1]):
+        y = y_all[:,n_plot]
+        name = names[n_plot]
+        color = colors[n_plot]
 
-    # the actual plotting
-    if refresh:
-        win = data_type
-        title = data_type
-        data = []
-        for name in d[data_type]:
-            x, y = zip(*d[data_type][name]['points'])
+        # ensure dictionary spots for the data exists
+        if name not in d[data_type]:
+            d[data_type][name] = {'points': [], 'color': color}
 
-            # if extracting mean and confidence internval info, plot the mean with error shading
-            if isinstance(y[0], tuple):
-                lower, mean, upper = zip(*y)
-                data.append(get_line(x, lower, '', color='transparent'))
-                data.append(get_line(x, upper, '', color='transparent', isFilled=True, fillcolor=d[data_type][name]['color'] + '44'))
-                data.append(get_line(x, mean, name, color=d[data_type][name]['color'], showlegend=True))
-            # if extracting single values, plot them as a single line
-            else:
-                data.append(get_line(x, y, name, color=d[data_type][name]['color'], showlegend=True))
+        # save the modified data
+        y = format_y(y)
+        d[data_type][name]['points'].append((x, y))
 
-        layout = dict(
-            title=title,
-            xaxis={'title': 'Epochs'},
-            yaxis={'title': data_type}
-        )
+    # plot all the given data at once
+    win = data_type
+    title = data_type
+    data = []
+    for name in d[data_type]:
+        x, y = zip(*d[data_type][name]['points'])
+        data.append(get_line(x, y, name, color=d[data_type][name]['color'], showlegend=True))
 
-        viz._send({'data': data, 'layout': layout, 'win': win})
+    layout = dict(
+        title=title,
+        xaxis={'title': 'Epochs'},
+        yaxis={'title': data_type}
+    )
+
+    viz._send({'data': data, 'layout': layout, 'win': win})
 
 
 def hist(points, name):
