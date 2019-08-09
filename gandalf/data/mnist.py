@@ -19,8 +19,9 @@ class MNIST:
 
     def save(self, epoch, G):
         z = torch.randn(96, self.config.latent_size)                                                                    # TODO: maybe interpolate instead
+        # z = torch.linspace(0, 1, 96).unsqueeze(1).repeat(1, self.config.latent_size)
         img = G(z).view(96, 1, 28, 28)
 
-        path = 'img/MNIST/'
+        path = f'img/MNIST/{self.config.algo}/'
         Path(path).mkdir(parents=True, exist_ok=True)
         save_image(img, path + str(epoch + 1) + '_epochs.png')
