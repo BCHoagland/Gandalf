@@ -1,8 +1,8 @@
 import gandalf
 
 class Config:
-    latent_size = 100
-    m = 64
+    latent_size = 10
+    m = 128
     n_hidden = 128
     clip = 0.01
 
@@ -10,7 +10,7 @@ class Config:
     k = 5
     vis_iter = 1
     save_iter = 10
-    lr = 5e-5
+    lr = 1e-4
 
     data = 'MNIST'
     algo = 'WGAN'

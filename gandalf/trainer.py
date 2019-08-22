@@ -16,12 +16,12 @@ class Trainer:
         self.config = config
 
         # set algorithm
-        self.config.algo = self.config.algo.upper()
+        self.config.algo = self.config.algo
         self.algo = get_class('gandalf.algos', self.config.algo)(config)
 
         # set data
         if data is None:
-            self.config.data = self.config.data.upper()
+            self.config.data = self.config.data
             self.data = get_class('gandalf.data', self.config.data)(config)
         else:
             self.data = data
@@ -59,16 +59,16 @@ class Trainer:
                         vals, title, names = self.algo.get_stats()
                         stats.append(torch.stack(vals))
 
-                # visualize stats occasionally
-                if epoch % self.vis_iter == self.vis_iter - 1:
-                    with torch.no_grad():
+                with torch.no_grad():
+                    # visualize stats occasionally
+                    if epoch % self.vis_iter == self.vis_iter - 1:
                         # self.algo.visualize(epoch + 1)                                                      # TODO: make sure this isn't wack
                         plot(epoch, torch.stack(stats), title, names)
                         del stats[:]
 
-                # save generated examples occasionally
-                if epoch % self.save_iter == self.save_iter - 1:
-                    self.data.save(epoch, G)
+                    # save generated examples occasionally
+                    if epoch % self.save_iter == self.save_iter - 1:
+                        self.data.save(epoch, G)
 
         except KeyboardInterrupt:
             com = colored('You killed my man Gandy :(', 'red')

@@ -11,4 +11,8 @@ class Gaussian:
         yield torch.randn(self.config.m, self.data_size) * 5 + 100
 
     def save(self, epoch, G):
-        pass
+        data = torch.randn(100, self.data_size) * 5 + 100
+        z = torch.randn(100, self.config.latent_size)
+
+        hist(G(z), 'Generated')
+        hist(data, 'Real')
