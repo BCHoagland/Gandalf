@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 
 from gandalf.algos.base import Algo
-from gandalf.visualize import plot, hist
 
 class GAN(Algo):
     def models(self):
@@ -31,11 +30,11 @@ class GAN(Algo):
     def optimize_D(self, x):
         z = self.noise()
         self.d_loss = (torch.log(self.D(x)) + torch.log(1 - self.D(self.G(z)))).mean()
-        self.D.optimize(-self.d_loss)
+        self.D.maximize(self.d_loss)
 
     def optimize_G(self):
         z = self.noise()
         # self.g_loss = torch.log(self.D(self.G(z))).mean()                                           # w/ trick            # TODO: decide whether or not to keep
-        # self.G.optimize(-self.g_loss)
+        # self.G.maximize(self.g_loss)
         self.g_loss = torch.log(1 - self.D(self.G(z))).mean()                                       # w/out trick
-        self.G.optimize(self.g_loss)
+        self.G.minimize(self.g_loss)

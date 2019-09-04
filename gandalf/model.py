@@ -16,7 +16,13 @@ class Net(nn.Module):
         if not isinstance(x, torch.Tensor): x = torch.FloatTensor(x)
         return self.main(x.to(device))
 
-    def optimize(self, loss):
+    def _optimize(self, loss):
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
+
+    def minimize(self, loss):
+        self._optimize(loss)
+
+    def maximize(self, loss):
+        self._optimize(-loss)
