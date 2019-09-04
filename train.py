@@ -11,9 +11,10 @@ class Config:
     vis_iter = 1
     save_iter = 10
     lr = 1e-4
+    λ = 10
 
     data = 'MNIST'
-    algo = 'WGAN'
+    algo = 'WGAN-GP'
 
 trainer = gandalf.Trainer(Config)
 trainer.train()
