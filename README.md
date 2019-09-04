@@ -19,3 +19,4 @@ A visdom server must be running locally prior to starting training. Run `visdom`
 # GANdalf
 
 <img src="wizard.png">
+"Yer a h8cker, Harry" - Gandalf
