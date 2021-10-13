@@ -1,12 +1,4 @@
-<!-- # GANs
-PyTorch implementations of different Generative Adversarial Network schemes
-
-
-## Types
-- [x] GAN
-- [x] Wasserstein GAN (WGAN)
-- [ ] Conditional GAN (cGAN)
-- [ ] InfoGAN
+# GANdalf
 
 ## Dependencies
 PyTorch, Numpy, Visdom
@@ -14,8 +6,6 @@ PyTorch, Numpy, Visdom
 ## Usage
 Training can be started simply by navigating to a folder and running `python train.py`.
 
-A visdom server must be running locally prior to starting training. Run `visdom` in a separate terminal window to do so. -->
-
-# GANdalf
+A visdom server must be running locally prior to starting training. Run `visdom` in a separate terminal window to do so.
 
 <img src="wizard.png">
