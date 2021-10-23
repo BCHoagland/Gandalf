@@ -4,6 +4,8 @@ from torch.autograd import grad
 
 from gandalf.algos.base import Algo
 
+device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+
 class WGAN_GP(Algo):
     def models(self):
         G = nn.Sequential(
@@ -24,9 +26,6 @@ class WGAN_GP(Algo):
         
         return G, D
 
-    def get_stats(self):
-        return ([self.wasserstein, self.grad_penalty], 'Wasserstein Estimate', ['Distance', 'Grad Penalty'])
-
     def optimize_D(self, x):
         # network inputs
         z = self.noise()
@@ -35,12 +34,12 @@ class WGAN_GP(Algo):
 
         # gradient penalty calculation
         out = self.D(x_inter)
-        grads = grad(out, x_inter, torch.ones(out.shape).to('cuda:0'), create_graph=True)[0]
-        self.grad_penalty = self.config.λ * ((self.norm(grads) - 1) ** 2).mean()
+        grads = grad(out, x_inter, torch.ones(out.shape).to(device), create_graph=True)[0]
+        grad_penalty = self.config.λ * ((self.norm(grads) - 1) ** 2).mean()
 
         # optimization
-        self.wasserstein = self.D(x).mean() - self.D(x_gen).mean()
-        d_loss = self.wasserstein - self.grad_penalty
+        wasserstein = self.D(x).mean() - self.D(x_gen).mean()
+        d_loss = wasserstein - grad_penalty
         self.D.maximize(d_loss)
 
     def optimize_G(self):

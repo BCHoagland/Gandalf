@@ -9,7 +9,7 @@ class Config:
     epochs = 100
     k = 5
     vis_iter = 1
-    save_iter = 10
+    save_iter = 1
     lr = 1e-4
     λ = 10
 
