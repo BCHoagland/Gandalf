@@ -24,9 +24,6 @@ class GAN(Algo):
         
         return G, D
 
-    def get_stats(self):
-        return ([self.d_loss, self.g_loss], 'GAN Loss', ['G', 'D'])
-
     def optimize_D(self, x):
         z = self.noise()
         self.d_loss = (torch.log(self.D(x)) + torch.log(1 - self.D(self.G(z)))).mean()

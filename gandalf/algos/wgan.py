@@ -23,9 +23,6 @@ class WGAN(Algo):
         
         return G, D
 
-    def get_stats(self):
-        return ([self.d_loss], 'Wasserstein Estimate', ['Distance'])
-
     def optimize_D(self, x):
         z = self.noise()
         self.d_loss = self.D(x).mean() - self.D(self.G(z)).mean()

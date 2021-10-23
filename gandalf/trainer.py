@@ -33,13 +33,17 @@ class Trainer:
 
     def train(self):
         try:
+            # set up the generator and discriminator based on the specifications of the algo
             G, D = self.algo.models()
             G, D = Net(G, self.lr), Net(D, self.lr)
             self.algo.setup(G, D)
 
+            # training epochs
             for epoch in range(int(self.epochs)):
+
                 # loop through batches
                 for x in self.data.batches():
+
                     # make sure batch is a full batch, otherwise we'll get matrix dimensionality errors
                     if x.shape[0] == self.config.m:
 
@@ -56,7 +60,7 @@ class Trainer:
                         self.data.save(epoch, G)
 
         except KeyboardInterrupt:
-            com = colored('You killed my man Gandy :(', 'red')
+            com = colored('Training cancelled', 'red')
             print(f'\r{com}')
             quit()
             
