@@ -11,7 +11,7 @@ def get_class(module, class_name):
 
 
 class Trainer:
-    def __init__(self, config, data=None):
+    def __init__(self, config):
         self.config = config
 
         # set algorithm
@@ -19,11 +19,7 @@ class Trainer:
         self.algo = get_class('gandalf.algos', self.config.algo)(config)
 
         # set data
-        if data is None:
-            self.config.data = self.config.data
-            self.data = get_class('gandalf.data', self.config.data)(config)
-        else:
-            self.data = data
+        self.data = get_class('gandalf.data', self.config.data)(config)
         self.config.data_size = self.data.data_size
 
 
@@ -34,30 +30,32 @@ class Trainer:
     def train(self):
         try:
             # set up the generator and discriminator based on the specifications of the algo
-            G, D = self.algo.models()
-            G, D = Net(G, self.lr), Net(D, self.lr)
-            self.algo.setup(G, D)
+            G = Net(self.G, self.lr)
+            D = Net(self.D, self.lr)
 
-            # training epochs
+            # training epochs`
             for epoch in range(int(self.epochs)):
 
                 # loop through batches
                 for x in self.data.batches():
 
                     # make sure batch is a full batch, otherwise we'll get matrix dimensionality errors
-                    if x.shape[0] == self.config.m:
+                    if x.shape[0] == self.m:
 
                         # optimize discriminator
                         for _ in range(self.k):
-                            self.algo.optimize_D(x)
+                            self.algo.optimize_D(G, D, x)
 
                         # optimize generator
-                        self.algo.optimize_G()
+                        self.algo.optimize_G(G, D)
 
                 with torch.no_grad():
                     # save generated examples occasionally
-                    if epoch % self.save_iter == self.save_iter - 1:
+                    if epoch % self.vis_iter == self.vis_iter - 1:
                         self.data.save(epoch, G)
+            
+                    # print training stats
+                    print(f'Epoch {epoch + 1}/{int(self.epochs)} completed')
 
         except KeyboardInterrupt:
             com = colored('Training cancelled', 'red')
