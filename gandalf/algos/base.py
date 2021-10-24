@@ -2,16 +2,13 @@ import torch
 
 device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
+
 class Algo:
     def __init__(self, config):
         self.config = config
 
     def __getattr__(self, k):
         return getattr(self.config, k)
-
-    def setup(self, G, D):
-        self.G = G
-        self.D = D
 
     def noise(self, batch_size=None):
         if batch_size is None: batch_size = self.m
