@@ -18,7 +18,7 @@ class WGAN_GP(Algo):
         # gradient penalty calculation
         out = D(x_inter)
         grads = grad(out, x_inter, torch.ones(out.shape).to(device), create_graph=True)[0]
-        grad_penalty = self.config.λ * ((self.norm(grads) - 1) ** 2).mean()
+        grad_penalty = self.λ * ((self.norm(grads) - 1) ** 2).mean()
 
         # optimization
         wasserstein = D(x).mean() - D(x_gen).mean()
