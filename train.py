@@ -16,7 +16,7 @@ class Config:
     λ = 10                  # gradient penalty for WGAN-GP
 
     data = 'MNIST'
-    algo = 'WGAN-GP'
+    algo = 'TopGAN'
 
     G = nn.Sequential(
             nn.Linear(latent_size, n_hidden),

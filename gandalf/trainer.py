@@ -15,7 +15,6 @@ class Trainer:
         self.config = config
 
         # set algorithm
-        self.config.algo = self.config.algo.replace('-', '_')
         self.algo = get_class('gandalf.algos', self.config.algo)(config)
 
         # set data

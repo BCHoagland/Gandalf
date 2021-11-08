@@ -4,7 +4,7 @@ import torch.nn as nn
 from gandalf.algos.base import Algo
 
 
-class GAN(Algo):
+class TopGAN(Algo):
 
     def optimize_D(self, G, D, x):
         z = self.noise()
