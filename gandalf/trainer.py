@@ -52,6 +52,10 @@ class Trainer:
                     # save generated examples occasionally
                     if epoch % self.vis_iter == self.vis_iter - 1:
                         self.data.save(epoch, G)
+                    
+                    # analyze the progress of the model occasionally
+                    if epoch % self.progress_iter == self.progress_iter - 1:
+                        self.algo.progress(G, D, x)
             
                     # print training stats
                     print(f'Epoch {epoch + 1}/{int(self.epochs)} completed')

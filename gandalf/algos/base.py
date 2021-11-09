@@ -24,3 +24,6 @@ class Algo:
 
     def norm(self, x):                                                                      #* only Euclidian for now
         return torch.sqrt(torch.sum(x.pow(2), dim=-1) + 1e-10)
+
+    def progress(self, *args):
+        pass

@@ -12,6 +12,7 @@ class Config:
     epochs = 100            # total number of training epochs
     k = 5                   # number of discriminator updates per epoch
     vis_iter = 1            # generate and save examples every 'vis_iter' epochs
+    progress_iter = 1       # give progress reports every 'progress_iter' epochs
     lr = 1e-4               # learning rate for networks
     λ = 10                  # gradient penalty for WGAN-GP
 

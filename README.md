@@ -37,7 +37,7 @@ Training happens through the `Trainer` class in `gandalf/trainer.py`. I tried to
 
 ## Making new algos
 
-Every algo should extend the class `Algo` from `gandalf/algos/base.py`. This class gives you access to a handful of helpful methods that you can access with `self.[method]()`. Every algo needs just 2 methods, `optimize_G` and `optimize_D`. These should take a single optimization step for the generator and discriminator, respectively. Check the existing algos to see what the inputs for each function should be. Your also might not need all of the inputs, but they have to be there for the code to not break.
+Every algo should extend the class `Algo` from `gandalf/algos/base.py`. This class gives you access to a handful of helpful methods that you can access with `self.[method]()`. Every algo needs just 2 methods, `optimize_G` and `optimize_D`. These should take a single optimization step for the generator and discriminator, respectively. <span style="color:red">Check the existing algos to see what the inputs for each function should be.</span> Your also might not need all of the inputs, but they have to be there for the code to not break.
 
 To ensure that it's accessible from the trainer file, you should import it in `algos/__init__.py`.
 
