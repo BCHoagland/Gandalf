@@ -1,13 +1,12 @@
 import torch
 import torch.nn as nn
-import matplotlib.pyplot as plt
+from torch.autograd import grad
 import gudhi as gd
 from gudhi.representations import Landscape
 
 from gandalf.algos.base import Algo
 
 device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
-
 
 def make_rips_complex(points, diameter):
     skeleton = gd.RipsComplex(points=points, max_edge_length=diameter)
@@ -39,45 +38,28 @@ def augment_with_landscape(x):
     l_repeated = l.repeat(batch_size, 1)
     return torch.cat((x, l_repeated), 1)
 
-
-class TopGAN(Algo):
+class Top_WGAN_GP(Algo):
 
     def optimize_D(self, G, D, x):
-        x_augmented = augment_with_landscape(x)
-        z = self.noise()
-        gen_augmented = augment_with_landscape(G(z))
+        x = augment_with_landscape(x)
 
-        d_loss = (torch.log(D(x_augmented)) + torch.log(1 - D(gen_augmented))).mean()
+        # network inputs
+        z = self.noise()
+        x_gen = augment_with_landscape(G(z))
+        x_inter = self.interpolate(x, x_gen)
+
+        # gradient penalty calculation
+        out = D(x_inter)
+        grads = grad(out, x_inter, torch.ones(out.shape).to(device), create_graph=True)[0]
+        grad_penalty = self.λ * ((self.norm(grads) - 1) ** 2).mean()
+
+        # optimization
+        wasserstein = D(x).mean() - D(x_gen).mean()
+        d_loss = wasserstein - grad_penalty
         D.maximize(d_loss)
 
     def optimize_G(self, G, D):
         z = self.noise()
         gen_augmented = augment_with_landscape(G(z))
-        g_loss = torch.log(D(gen_augmented)).mean()                                           # w/ trick
-        G.maximize(g_loss)
-        # g_loss = torch.log(1 - D(gen_augmented)).mean()                                       # w/out trick
-        # G.minimize(g_loss)
-
-    # def progress(self, G, D, x):
-    #     def tsne_vis(pts):
-    #         #* take batch data, compress to 2D, and plot
-    #         with torch.no_grad():
-    #             pts = pts.numpy()
-    #             pts = TSNE(n_components=2, learning_rate='auto', init='random').fit_transform(pts)
-    #             x_coords = pts[:,0]
-    #             y_coords = pts[:,1]
-    #             plt.scatter(x_coords, y_coords)
-    #             plt.show()
-
-    #     def show_first_img(images):
-    #         #* take first image from batch and show it
-    #         with torch.no_grad():
-    #             img = images.view(-1, 1, 28, 28).numpy()[0, 0, :, :]
-    #             print(img.shape)
-    #             plt.imshow(img)
-    #             plt.show()
-        
-    #     show_first_img(x)
-    #     out = G(self.noise())
-    #     show_first_img(out)
-    #     quit()
+        g_loss = -D(gen_augmented).mean()
+        G.minimize(g_loss)

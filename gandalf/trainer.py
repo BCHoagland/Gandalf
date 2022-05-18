@@ -1,6 +1,7 @@
 import torch
 import importlib
 from termcolor import colored
+from tqdm import tqdm
 
 from gandalf.model import Net
 
@@ -36,7 +37,7 @@ class Trainer:
             for epoch in range(int(self.epochs)):
 
                 # loop through batches
-                for x in self.data.batches():
+                for x in tqdm(self.data.batches()):
 
                     # make sure batch is a full batch, otherwise we'll get matrix dimensionality errors
                     if x.shape[0] == self.m:

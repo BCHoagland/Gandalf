@@ -10,6 +10,8 @@ termcolor = "*"
 gudhi = "*"
 matplotlib = "*"
 sklearn = "*"
+tqdm = "*"
+Pillow = ">=9.0.1"
 
 [dev-packages]
 

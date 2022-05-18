@@ -4,6 +4,7 @@ from torchvision import transforms, datasets
 from torchvision.utils import save_image
 from pathlib import Path
 
+
 class MNIST:
     data_size = 28 * 28
 
@@ -11,11 +12,17 @@ class MNIST:
         self.config = config
 
         dataset = datasets.MNIST('gandalf/data', transform=transforms.ToTensor(), download=True)
+        #! remove this eventually
+        N = 5000
+        dataset, _ = torch.utils.data.random_split(dataset, [N, 60000-N])
         self.dataloader = DataLoader(dataset, batch_size=config.m, shuffle=True)
 
     def batches(self):
         for img, _ in self.dataloader:
             yield img.view(img.size(0), -1)
+    
+    # def num_batches(self):
+    #     return len(self.dataloader)
 
     def save(self, epoch, G):
         z = torch.randn(96, self.config.latent_size)                                                                    # TODO: maybe interpolate instead
